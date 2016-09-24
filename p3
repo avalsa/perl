@@ -1,0 +1,19 @@
+#!/usr/local/bin/perl
+
+use strict; 
+use Data::Dumper;
+use DDP;
+
+open fi, "p_t" or die "Failed to open file\n";
+my @A;
+while (<fi>) {
+	chomp;
+	my @F=();
+	@F=split(";");
+	my $ref=\@F;
+	push(@A, $ref);
+}
+close fi;
+print Dumper(@A);
+print "/////////////////////////////////////////\n";
+p @A;
