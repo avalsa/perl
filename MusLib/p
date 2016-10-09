@@ -1,3 +1,0 @@
-#!/bin/bash
-cat songs | 
-perl music_library.pl \ --sort format --band 'Midas Fall' --columns band,year,album,year,track \
