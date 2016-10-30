@@ -8,7 +8,6 @@ use lib "$FindBin::Bin/../lib";
 use Local::JSONParser;
 use DDP;
 
-
 @ARGV or die "Usage:\n\tperl $0 file\n";
 my $file = shift @ARGV;
 

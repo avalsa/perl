@@ -23,7 +23,7 @@ sub parse_json {
 
 sub dec{
 	my $str = shift;
-	$str=decode("utf-8", $str); # "\x{263a}"
+	$str=decode("utf-8", $str);
 	return $str;
 }
 
@@ -56,7 +56,6 @@ sub  makestr{
 	# $str=~s/\\\//\//g;
 	# $str=~s/\\u(\w{4})/chr(hex($1))/ge;
 	# return $str;
-	say $res;
 	return $res;
 
 }
