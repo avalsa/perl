@@ -53,7 +53,7 @@ sub parse_array{
 	for($str){
 		my $prev='[';#val ,,
 		while (pos($str) < length($str)) {
-			if (/\G([\{|\[])/gc) {
+			if (/\G([\{\[])/gc) {
 				my ($posr, $struct)=($1 eq '{')?parse_hash(pos($str), $str):parse_array(pos($str), $str);
 				push @res, $struct;
 				pos($str)=$posr;
@@ -85,7 +85,6 @@ sub parse_array{
 }
 
 sub parse_hash{
-	say 'new parse_hash';
 	my %res;
 	my ($ind, $str)=(shift, shift);
 	pos($str)=$ind;
@@ -93,7 +92,7 @@ sub parse_hash{
 		my $key;
 		my $prev='{';#val, key, :, ,
 		while (pos($str) < length($str)) {
-			if (/\G([\{|\[])/gc) {
+			if (/\G([\{\[])/gc) {
 				my ($posr, $struct)=($1 eq '{')?parse_hash(pos($str), $str):parse_array(pos($str), $str);
 				$res{$key}=$struct;
 				pos($str)=$posr;
