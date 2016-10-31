@@ -1,7 +1,6 @@
 package Local::JSONParser;
 
 use strict;
-use warnings;
 use base qw(Exporter);
 our @EXPORT_OK = qw( parse_json );
 our @EXPORT = qw( parse_json );
