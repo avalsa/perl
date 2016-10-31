@@ -10,19 +10,13 @@ use Encode qw(encode decode);
 sub parse_json {
 	my $source = shift;
 	$source=~s/^\s+//g;
-	$source=dec($source);
-	die "Bad sequence" unless ($source =~ m/^[\{|\[].+/s);
-	my ($ind, $struct)=($source =~ m/^\{.+/s)?parse_hash(1, $source):parse_array(1, $source);
-	pos($source)=$ind;
+	$source=decode("utf-8", $source);
+	my $l=\$source;
+	die "Bad sequence" unless ( $source =~ m/\G[\{\[]/gc);
+	my $struct=($source =~ m/^\{.+/s)?parse_hash($l):parse_array($l);
 	die "Bad sequence" unless ( $source =~m/\G\s*/gc);
 	die "Bad sequence" unless ( defined($struct));
 	return $struct;
-}
-
-sub dec{
-	my $str = shift;
-	$str=decode("utf-8", $str);
-	return $str;
 }
 
 sub  makestr{
@@ -39,8 +33,7 @@ sub  makestr{
 			elsif (/\G\\"/gc) { $res=$res . "\"";}
 			elsif (/\G\\\\/gc) { $res=$res . "\\";}
 			elsif (/\G\\\//gc) { $res=$res . "\/";}
-			elsif (/\G\\\//gc) { $res=$res . "\/";}
-			elsif (/\G\\u(\w{4})/gc) {$res=$res . chr(hex($1));}
+			elsif (/\G\\u(\w{4})/gc) {$res=$res . chr(hex($1)); die "Bad sequence" unless ($1=~m/[\dabcdefABCDEF]{4}/);}
 			elsif (/\G(.)/gc) { $res=$res . $1;}
 		}
 	}
@@ -48,20 +41,18 @@ sub  makestr{
 }
 
 sub parse_array{
-	my ($ind, $str)=(shift, shift);
+	my ($str) = $_[0];
 	my @res;
-	pos($str)=$ind;
-	for($str){
+	for($$str){
 		my $prev='[';#val ,,
-		while (pos($str) < length($str)) {
+		while (pos($$str) < length($$str)) {
 			if (/\G([\{\[])/gc) {
-				my ($posr, $struct)=($1 eq '{')?parse_hash(pos($str), $str):parse_array(pos($str), $str);
+				my $struct=($1 eq '{')?parse_hash($str):parse_array($str);
 				push @res, $struct;
-				pos($str)=$posr;
 				die "Bad sequence" if ($prev ne',' and $prev ne'[');
 				$prev='val';
 			}
-			elsif (/\G\]/gc) {return (pos($str), \@res);}
+			elsif (/\G\]/gc) {return \@res;}
 			elsif(/\G\s+/gc){}
 			elsif(/\G\,/gc){
 				die "Bad sequence" if ($prev ne'val');
@@ -86,23 +77,21 @@ sub parse_array{
 }
 
 sub parse_hash{
+	my ($str) = $_[0];
 	my %res;
-	my ($ind, $str)=(shift, shift);
-	pos($str)=$ind;
-	for($str){
+	for($$str){
 		my $key;
 		my $prev='{';#val, key, :, ,
-		while (pos($str) < length($str)) {
+		while (pos($$str) < length($$str)) {
 			if (/\G([\{\[])/gc) {
-				my ($posr, $struct)=($1 eq '{')?parse_hash(pos($str), $str):parse_array(pos($str), $str);
+				my $struct=($1 eq '{')?parse_hash($str):parse_array($str);
 				$res{$key}=$struct;
-				pos($str)=$posr;
 				die "Bad sequence" if ($prev ne':');
 				$prev='val';
 			}
 			elsif (/\G\}/gc) {
 				die "Bad sequence" if ($prev ne 'val' and $prev ne '{'); 
-				return (pos($str), \%res);
+				return \%res;
 			}
 			elsif(/\G\s+/gc){}
 			elsif(/\G\:/gc){
