@@ -85,7 +85,6 @@ sub parse_array{
 }
 
 sub parse_hash{
-	say 'new parse_hash';
 	my %res;
 	my ($ind, $str)=(shift, shift);
 	pos($str)=$ind;
