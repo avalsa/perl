@@ -33,7 +33,7 @@ sub  makestr{
 			elsif (/\G\\"/gc) { $res=$res . "\"";}
 			elsif (/\G\\\\/gc) { $res=$res . "\\";}
 			elsif (/\G\\\//gc) { $res=$res . "\/";}
-			elsif (/\G\\u(\w{4})/gc) {$res=$res . chr(hex($1)); die "Bad sequence" unless ($1=~m/[\dabcdefABCDEF]{4}/);}
+			elsif (/\G\\u(\w{4})/gc) {$res=$res . chr(hex($1)); die "Bad sequence" unless ($1=~m/[\da-fA-F]{4}/);}
 			elsif (/\G(.)/gc) { $res=$res . $1;}
 		}
 	}
@@ -73,7 +73,8 @@ sub parse_array{
 				die "Bad sequence";
 			}
 		}
-	}	
+	}
+	undef;	
 }
 
 sub parse_hash{
@@ -117,7 +118,8 @@ sub parse_hash{
 				die "Bad sequence";
 			}
 		}
-	}	
+	}
+	undef;	
 }
 
 1;
