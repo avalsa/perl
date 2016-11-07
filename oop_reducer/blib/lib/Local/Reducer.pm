@@ -16,29 +16,17 @@ sub _re_bu{
 	return $self->initial_value;
 }
 
-sub reduce {
+sub get_data {
 	my ($self, $fields)=@_;
 	my $str=$self->source->next;
 	return undef unless (defined($str));
-	if ($self->row_class eq 'Local::Row::Simple'){
-		my $x=Local::Row::Simple->new(str=>$str);
-		my @res;
-		for (my $i=0; $i<@{$fields}; $i++){
-			push @res, $x->get($fields->[$i], 0);
-		}
-		return \@res;
+	my $x=$self->row_class->new(str=>$str);
+	my @res;
+	for (my $i=0; $i<@{$fields}; $i++){
+		push @res, $x->get($fields->[$i], 0);
 	}
-	elsif ($self->row_class eq 'Local::Row::JSON'){
-		my $x=Local::Row::JSON->new(str=>$str);
-		my @res;
-		for (my $i=0; $i<@{$fields}; $i++){
-			push @res, $x->get($fields->[$i], 0);
-		}
-		return \@res;
-	}
-	else{
-		die "Bad row_class";
-	}
+	return \@res;
+	
 }
 
 1;

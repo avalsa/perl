@@ -18,7 +18,7 @@ sub _m_dif{
 sub reduce_n{
 	my ($self, $n)=@_;
 	for (my $i=0; $i<$n; $i++){
-		my $ar=$self->reduce([$self->top, $self->bottom]);
+		my $ar=$self->get_data([$self->top, $self->bottom]);
 		last if (!defined($ar->[0]) or !defined($ar->[1]));
 		$self->_m_dif($ar->[0], $ar->[1]);
 	}
@@ -26,8 +26,9 @@ sub reduce_n{
 }
 
 sub	reduce_all{
-	my ($self, $ar)=shift;
-	while (defined( $ar=$self->reduce([$self->top, $self->bottom])) and defined($ar->[0]) and defined($ar->[1]) ) {
+	my $self=shift;
+	my $ar;
+	while (defined( $ar=$self->get_data([$self->top, $self->bottom])) and defined($ar->[0]) and defined($ar->[1]) ) {
 		$self->_m_dif($ar->[0], $ar->[1]);
 	}
 	return $self->reduced;

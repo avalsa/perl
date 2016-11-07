@@ -12,7 +12,7 @@ sub reduce_n{
 	my ($self, $n)=@_;
 	my $val;
 	for (my $i=0; $i<$n; $i++){
-		$val=$self->reduce([$self->field])->[0];
+		$val=$self->get_data([$self->field])->[0];
 		last unless (defined($val));
 		$self->reduced($self->reduced+$val);
 	}
@@ -21,7 +21,7 @@ sub reduce_n{
 
 sub	reduce_all{
 	my $self=shift;
-	while (defined (my $x=$self->reduce([$self->field]))) {
+	while (defined (my $x=$self->get_data([$self->field]))) {
 		$self->reduced($self->reduced+$x->[0]);
 	}
 	return $self->reduced; 
