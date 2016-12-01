@@ -1,5 +1,5 @@
 use utf8;
-package Local::Schema;
+package Local::Habr::Schema;
 
 use strict;
 use warnings;

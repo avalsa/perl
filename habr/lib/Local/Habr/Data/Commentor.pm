@@ -1,4 +1,4 @@
-package Local::Data::Commentor;
+package Local::Habr::Data::Commentor;
 
 use strict;
 use warnings;

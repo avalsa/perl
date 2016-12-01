@@ -1,28 +1,45 @@
-package Local::Database;
+package Local::Habr::Database;
 
 use strict;
 use warnings;
-use Local::Schema;
-use Local::Data::Post;
-use Local::Data::User;
+use Local::Habr::Schema;
+use Local::Habr::Data::Post;
+use Local::Habr::Data::User;
+use Config::Properties;
 use Mouse;
+use Log::Any '$log';
+use Log::Any::Adapter ('Stdout');
 
 has 'schema' => (is => 'rw', builder => '_sch');
 
-sub _sch{
-	return $a=Local::Schema->connect(
-		'DBI:Pg:database=habr;host=localhost;port=5432',
-	 	'postgres',
-	 	'123456',
+sub _sch{	
+	my $filename = 'config.properties';  #bad moment, may be it would better to get file path to config as param and keep config in src
+	open my $fh, '<', $filename
+    	or die "unable to open configuration file";
+
+  	my $properties = Config::Properties->new();
+  	$properties->load($fh);
+
+  	my $db_driver = $properties->getProperty('db_driver');
+  	my $db_name = $properties->getProperty('db_name');
+  	my $db_host = $properties->getProperty('db_host');
+  	my $db_port = $properties->getProperty('db_port');
+  	my $db_user = $properties->getProperty('db_user');
+  	my $db_pass = $properties->getProperty('db_pass');
+
+  	return $a=Local::Habr::Schema->connect(
+  		"$db_driver=$db_name;host=$db_host;port=$db_port",
+	 	$db_user,
+	 	$db_pass,
 	 	{ RaiseError => 1 });
 }
 
-#POST
-
 sub logger{
 	my ($self, $str)=@_;
-	print $str . "\n";
+	$log->info($str);
 }
+
+#POST
 
 sub get_post_info{
 	my ($self, $id)=@_;
@@ -31,7 +48,7 @@ sub get_post_info{
 	return undef if (!defined($post)); 
 	my %h = %$post;
 	my $l=$h{'_column_data'};
-	my $a= Local::Data::Post->new( $l );
+	my $a= Local::Habr::Data::Post->new( $l );
 }
 
 sub insert_post{
@@ -54,7 +71,7 @@ sub get_user_info{
 	return undef if (!defined($user));
 	my %h = %$user;
 	my $l=$h{'_column_data'};
-	my $a= Local::Data::User->new( $l );
+	my $a= Local::Habr::Data::User->new( $l );
 }
 
 sub insert_user{
@@ -121,7 +138,7 @@ sub desert_posts{
  	while (my $post = $rs->next) {
       	my %h = %$post;
 		my $l=$h{'_column_data'};
-		my $d= Local::Data::Post->new( $l );
+		my $d= Local::Habr::Data::Post->new( $l );
 		push @a, $d;
     }
     return \@a;

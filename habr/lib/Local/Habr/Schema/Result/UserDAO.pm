@@ -1,5 +1,5 @@
 use utf8;
-package Local::Schema::Result::UserDAO;
+package Local::Habr::Schema::Result::UserDAO;
 
 use strict;
 use warnings;

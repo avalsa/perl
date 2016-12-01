@@ -1,4 +1,4 @@
-package Local::Data::User;
+package Local::Habr::Data::User;
 
 use strict;
 use warnings;

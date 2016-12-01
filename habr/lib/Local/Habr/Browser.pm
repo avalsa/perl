@@ -1,14 +1,14 @@
 use utf8;
-package Local::Browser;
+package Local::Habr::Browser;
 
 use strict;
 use warnings;
 use Mojo::DOM;
 use LWP 5.64;
 use Encode qw(decode);
-use Local::Data::Post;
-use Local::Data::User;
-use Local::Data::Commentor;
+use Local::Habr::Data::Post;
+use Local::Habr::Data::User;
+use Local::Habr::Data::Commentor;
 use Mouse;
 
 sub get_post_info{
@@ -52,7 +52,7 @@ sub get_post_info{
 	$title=decode('UTF8', $title);
 	$ranking=decode('UTF8', $ranking);
 
-	my $post=Local::Data::Post->new(id=>$id, title => $title, stars => $stars, views => $views, ranking => $ranking, author => $nik);
+	my $post=Local::Habr::Data::Post->new(id=>$id, title => $title, stars => $stars, views => $views, ranking => $ranking, author => $nik);
 
 
 	###########################
@@ -82,7 +82,7 @@ sub get_post_info{
 	}
 	$karma=decode('UTF8', $karma);
 	$rank=decode('UTF8', $rank);
-	my $user=Local::Data::User->new(nik => $nik, karma => $karma, ranking => $rank);
+	my $user=Local::Habr::Data::User->new(nik => $nik, karma => $karma, ranking => $rank);
 	die "Bad user" if (!defined($nik) or !defined($rank) or !defined($karma));
 	##############################
 
@@ -118,7 +118,7 @@ sub get_user_info{
 	$nik=substr($nik, 1, length($nik));
 	$karma=decode('UTF8', $karma);
 	$ranking=decode('UTF8', $ranking);
-	my $user=Local::Data::User->new(nik => $nik, karma => $karma, ranking => $ranking);
+	my $user=Local::Habr::Data::User->new(nik => $nik, karma => $karma, ranking => $ranking);
 }
 
 1;

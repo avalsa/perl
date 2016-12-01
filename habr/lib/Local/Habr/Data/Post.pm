@@ -1,4 +1,4 @@
-package Local::Data::Post;
+package Local::Habr::Data::Post;
 
 use strict;
 use warnings;

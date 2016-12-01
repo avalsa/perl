@@ -1,5 +1,5 @@
 use utf8;
-package Local::Schema::Result::CommentorDAO;
+package Local::Habr::Schema::Result::CommentorDAO;
 
 use strict;
 use warnings;
@@ -19,5 +19,5 @@ __PACKAGE__->add_columns(
 );
 
 __PACKAGE__->set_primary_key("nik");
-__PACKAGE__->belongs_to(post => 'Local::Schema::Result::PostDAO', 'id_post');
+__PACKAGE__->belongs_to(post => 'Local::Habr::Schema::Result::PostDAO', 'id_post');
 1;

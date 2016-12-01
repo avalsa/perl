@@ -1,5 +1,5 @@
 use utf8;
-package Local::Schema::Result::PostDAO;
+package Local::Habr::Schema::Result::PostDAO;
 
 use strict;
 use warnings;
@@ -31,5 +31,5 @@ __PACKAGE__->add_columns(
 );
 
 __PACKAGE__->set_primary_key("id");
-__PACKAGE__->has_many(commentors => 'Local::Schema::Result::CommentorDAO', 'id_post');
+__PACKAGE__->has_many(commentors => 'Local::Habr::Schema::Result::CommentorDAO', 'id_post');
 1;
