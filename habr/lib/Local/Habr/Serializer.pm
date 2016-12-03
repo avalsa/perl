@@ -24,30 +24,18 @@ sub serialize{
 
 sub _to_json{
 	my ($self, $obj)=@_;
-	return $self->_to_jsona($obj) if (ref($obj) eq 'ARRAY');
-	my %h = %{$obj};
-	$self->json->encode( \%h );
+	$self->json->encode( $obj );
 }
 
 sub _to_jsonl{
 	my ($self, $aref)=@_;
-	my @r;
 	return $self->_to_json($aref) if (ref($aref) ne 'ARRAY');
+	my @r;
 	foreach my $obj (@{$aref}){
-		my $s=$self->to_json($obj);
+		my $s=$self->json->encode($obj);
 		push @r, $s;
 	}
 	join "\n", @r;
-}
-
-sub _to_jsona{
-	my ($self, $aref)=@_;
-	my @r;
-	foreach my $obj (@{$aref}){
-		my %h=%{$obj};
-		push @r, \%h;
-	}
-	$self->json->encode( \@r );
 }
 
 1;

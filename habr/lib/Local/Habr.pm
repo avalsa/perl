@@ -6,6 +6,8 @@ use Local::Habr::Database;
 use Local::Habr::Browser;
 use Local::Habr::Serializer;
 use Mouse;
+use DDP;
+use Data::Dumper;
 
 has 'database' => (is => 'rw', builder => '_db'); 		#var to connect to database
 has 'browser' => (is => 'rw', builder => '_br');		#var to connect to browser
@@ -22,39 +24,54 @@ sub _se{ Local::Habr::Serializer->new; }
 sub get_user_info{
 	my ($self, $name, $for, $ref)=@_;
 	my $r=$self->_get_user_info($name, $ref);
-	return $self->serializer->serialize($r, $for);
+	return $self->serializer->serialize($self->_extr_data($r), $for);
 }
 
 sub get_user_info_by_post{
 	my ($self, $id, $for, $ref)=@_;
 	my $r=$self->_get_user_info_by_post($id, $ref);
-	return $self->serializer->serialize($r, $for);
+	return $self->serializer->serialize($self->_extr_data($r), $for);
 }
 
 sub get_commentors_info{
 	my ($self, $id, $for, $ref)=@_;
 	my $r=$self->_get_commentors_info($id, $ref);
-	return $self->serializer->serialize($r, $for);
+	return $self->serializer->serialize($self->_extr_data($r), $for);
 }
 
 sub get_post_info{
 	my ($self, $id, $for, $ref)=@_;
 	my $r=$self->_get_post_info($id, $ref);
-	return $self->serializer->serialize($r, $for);
+	return $self->serializer->serialize($self->_extr_data($r), $for);
 }
 sub get_self_commentors{
 	my ($self, $for)=@_;
 	my $r=$self->_get_self_commentors;
-	return $self->serializer->serialize($r, $for);
+	return $self->serializer->serialize($self->_extr_data($r), $for);
 }
 
 sub get_desert_posts{
 	my ($self, $n, $for)=@_;
 	my $r=$self->_get_desert_posts($n);
-	return $self->serializer->serialize($r, $for);
+	return $self->serializer->serialize($self->_extr_data($r), $for);
 }
 
 ############################################
+# may be it would better to include similar methods in Post, User, Commentor
+sub _extr_data{
+	my ($self, $r)=@_;
+	if (ref($r) eq 'ARRAY'){
+		my @a;
+		for my $v (@{$r}){
+			my $h=%$v{'_column_data'};
+			push @a, $h;
+		}
+		return \@a;
+	}
+	my $h=%$r{'_column_data'};
+}
+
+#######################################
 
 sub _get_user_info{
 	my ($self, $name, $ref)=@_;
@@ -128,8 +145,8 @@ sub _get_commentors_info{
 sub _get_post_info{
 	my ($self, $id, $ref)=@_;
 	if (!$ref){
-	my $inf=$self->database->get_post_info($id);
-	return $self->se->to_json($inf) if (defined($inf));
+		my $inf=$self->database->get_post_info($id);
+		return $inf if (defined($inf));
 	}
 	my ($post, $user, $coms)=$self->browser->get_post_info($id);
 	$self->database->insert_user($user);
@@ -137,7 +154,7 @@ sub _get_post_info{
 	foreach my $com ( @{$coms} ) {
 		$self->database->insert_commentor($com);
 	}
-	return $self->se->to_json($post);
+	return $post;
 }
 
 sub _get_self_commentors{
