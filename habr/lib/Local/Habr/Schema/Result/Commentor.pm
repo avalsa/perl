@@ -18,6 +18,6 @@ __PACKAGE__->add_columns(
   
 );
 
-__PACKAGE__->set_primary_key("nik");
+__PACKAGE__->set_primary_key(qw/nik id_post/);
 __PACKAGE__->belongs_to(post => 'Local::Habr::Schema::Result::Post', 'id_post');
 1;
