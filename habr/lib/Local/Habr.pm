@@ -6,8 +6,6 @@ use Local::Habr::Database;
 use Local::Habr::Browser;
 use Local::Habr::Serializer;
 use Mouse;
-use DDP;
-use Data::Dumper;
 
 has 'database' => (is => 'rw', builder => '_db'); 		#var to connect to database
 has 'browser' => (is => 'rw', builder => '_br');		#var to connect to browser
