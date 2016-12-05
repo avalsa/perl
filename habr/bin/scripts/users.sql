@@ -5,8 +5,8 @@
 CREATE TABLE public.users
 (
   nik character varying(30) NOT NULL,
-  ranking character varying(10) NOT NULL,
-  karma character varying(10) NOT NULL,
+  karma real NOT NULL,
+  ranking real NOT NULL,
   CONSTRAINT users_pkey PRIMARY KEY (nik)
 )
 WITH (

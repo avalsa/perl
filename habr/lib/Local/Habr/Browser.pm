@@ -51,7 +51,10 @@ sub get_post_info{
 	$nik=substr($nik, 1, length($nik));
 	$title=decode('UTF8', $title);
 	$ranking=decode('UTF8', $ranking);
-
+	$views =~ tr/,/./;
+	if ($views =~ m/(.+)k/){
+		$views = $1 * 1000;
+	}
 	my $post=Local::Habr::Schema::Result::Post->new({id=>$id, title => $title, stars => $stars, views => $views, ranking => $ranking, author => $nik});
 
 
@@ -82,6 +85,8 @@ sub get_post_info{
 	}
 	$karma=decode('UTF8', $karma);
 	$rank=decode('UTF8', $rank);
+	$karma =~ tr/,/./;
+	$rank =~ tr/,/./;
 	my $user=Local::Habr::Schema::Result::User->new({nik => $nik, karma => $karma, ranking => $rank});
 	die "Bad user" if (!defined($nik) or !defined($rank) or !defined($karma));
 	##############################
@@ -118,6 +123,8 @@ sub get_user_info{
 	$nik=substr($nik, 1, length($nik));
 	$karma=decode('UTF8', $karma);
 	$ranking=decode('UTF8', $ranking);
+	$karma =~ tr/,/./;
+	$ranking =~ tr/,/./;
 	my $user=Local::Habr::Schema::Result::User->new({nik => $nik, karma => $karma, ranking => $ranking});
 }
 

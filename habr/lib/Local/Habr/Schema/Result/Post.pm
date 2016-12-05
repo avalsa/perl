@@ -17,10 +17,10 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_nullable => 0 },
 
   "views",
-  { data_type => "varchar(10)", is_nullable => 0 },
+  { data_type => "integer", is_nullable => 0 },
 
   "ranking",
-  { data_type => "varchar(10)", is_nullable => 0 },
+  { data_type => "integer", is_nullable => 0 },
 
   "author",
   { data_type => "varchar(30)", is_nullable => 0 },

@@ -11,10 +11,10 @@ __PACKAGE__->table("users");
 __PACKAGE__->add_columns(
 	
   "karma",
-  { data_type => "varchar(10)", is_nullable => 0 },
+  { data_type => "real", is_nullable => 0 },
 
   "ranking",
-  { data_type => "varchar(10)", is_nullable => 0 },
+  { data_type => "real", is_nullable => 0 },
 
   "nik",
   { data_type => "varchar(30)", is_nullable => 0 }
