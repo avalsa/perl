@@ -3,18 +3,19 @@ use Mouse;
 use AnyEvent::HTTP;
 use AnyEvent;
 use Web::Query;
-
+no warnings 'experimental';
 has 'thread_cnt' => (is => 'rw', isa => 'Int', default => 16);
 has 'url'  => (is => 'rw', isa => 'Str', required => 1);
 has 'limit' => (is => 'rw', isa => 'Int', default => 50);
-
-my @to_procede; 	#urls that were found
-my %done;  			#key = url, value = it's size
+has '_to_procede' => (is => 'rw', isa => 'ArrayRef');
+has '_done' => (is => 'rw', isa => 'HashRef');
 
 sub BUILD{
 	my $self=shift;
 	$AnyEvent::HTTP::MAX_PER_HOST = $self->thread_cnt;		#to load data more than in 4 threads
-	push @to_procede, $self->url;
+	$self->_to_procede([]);
+	$self->_done({});
+	push $self->_to_procede, $self->url;
 }
 
 sub logger{
@@ -24,24 +25,43 @@ sub logger{
 
 sub _do_work{
 	my ($self, $cb, $adr)=@_;
-	if (exists($done{$adr})){ 		#if have so not need yet
+	if (exists($self->_done->{$adr})){ 		#if have so not need yet
 		$cb->();
 		return;
 	}
-	$done{$adr}=-1;					#mark it for if some another thread want to begin load, stop it  
+
+	$self->_done->{$adr}=-1;					#mark it for if some another thread want to begin load, stop it  
 	my $w; $w = http_request GET => $adr, sub {
     	my ($body, $hdr) = @_;
     	unless (defined $body and defined $hdr){
+    		undef $w;
     		$cb->();
 			return;
     	}
+    	#analize answer
+    	if ($hdr->{'Status'}<200 or $hdr->{'Status'}>=400){		#if not 2xx or 3xx means something bad
+    		undef $w;
+    		$cb->();
+			return;
+    	}
+    	if ($hdr->{'Status'}>=300){
+    		unless (index($hdr->{'URL'}, $self->url) == 0){ 	#redirect to another site
+    			undef $w;
+    			$cb->();
+				return;
+    		}
+    	}
+    	########
     	my $len = $hdr->{'content-length'};
-    	$done{$adr} = $len; 							#save new result	
+    	$self->_done->{$adr} = $len; 							#save new result	
     	my $q = Web::Query->new( $body );
 		my @hrefs = $q->find('a')->attr('href');
 		for my $href (@hrefs){
-			if (defined($href) and index($href, $self->url) == 0){  	#same domain
-				push @to_procede, $href unless(exists($done{$href})); 	#not procede yet
+			if (defined $href){
+				$href = $hdr->{'URL'} . $href if ($href =~ m/^\/.+/);  #relative link (begins with /)
+				if (index($href, $self->url) == 0){  	#same domain
+					push $self->_to_procede, $href unless(exists($self->_done->{$href})); 
+				}
 			}
 		}
     	undef $w;
@@ -57,11 +77,11 @@ sub run{
 	my $free = $self->thread_cnt;
 	my $cur;
 	my $next; $next = sub {
-		my $n=keys %done;
+		my $n=keys %{$self->_done};
 		return if ($n >= $self->limit); #we achieved our goal
 		return if ($free < 0);
 		$free--;						#take resource
-		$cur = pop @to_procede;
+		$cur = pop $self->_to_procede;
 		return unless (defined $cur);
 		$self->logger("Process $cur");
 		$cv->begin;
@@ -81,8 +101,8 @@ sub _summary{
 	my $self=shift;
 	my $sz=0;
 	my @top;
-	for my $key ( keys %done ) {
-        my $value = $done{$key};
+	for my $key ( keys %{$self->_done} ) {
+        my $value = $self->_done->{$key};
         $sz+=$value;
         if ($#top <10){ push @top, {key => $key, val => $value}; }
         else {
